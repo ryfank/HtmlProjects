@@ -1,0 +1,77 @@
+<!-- petals.html -->
+ <!-- this one failed :( but it still works -->
+
+<!DOCTYPE html>
+
+<head>
+
+  <title>Sakura Petals</title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(180deg, #fdeff3 0%, #f9d6dd 100%);
+      overflow: hidden;
+      user-select: none;
+    }
+
+    .petal {
+      position: fixed;
+      width: 25px;
+      height: 25px;
+      background: radial-gradient(circle at center, #ffe1eb 0%, #f99ac2 70%);
+      border-radius: 50% / 60%;
+      filter: drop-shadow(0 0 6px #f9a1c9cc);
+      opacity: 0.85;
+      pointer-events: none;
+      animation-name: fall, drift, rotate;
+      animation-timing-function: linear, ease-in-out, linear;
+      animation-iteration-count: infinite;
+      animation-duration: var(--fall-duration), var(--drift-duration), var(--rotate-duration);
+      animation-delay: var(--fall-delay), var(--drift-delay), var(--rotate-delay);
+      transform-origin: center;
+      z-index: 10;
+      will-change: transform;
+    }
+
+    /* Fall from top to bottom */
+    @keyframes fall {
+      0% { transform: translateY(-30px); opacity: 0.85; }
+      100% { transform: translateY(110vh); opacity: 0; }
+    }
+
+    /* Side to side drifting */
+    @keyframes drift {
+      0%, 100% { transform: translateX(0); }
+      50% { transform: translateX(40px); }
+    }
+
+    /* Slow gentle rotation */
+    @keyframes rotate {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+  </style>
+</head>
+<body>
+
+<script>
+  //multiple petals with random timing and positions
+  const petalsCount = 35;
+  for(let i = 0; i < petalsCount; i++) {
+    const petal = document.createElement('div');
+    petal.className = 'petal';
+    petal.style.left = Math.random() * 100 + 'vw';
+    petal.style.setProperty('--fall-duration', 8000 + Math.random() * 7000 + 'ms');
+    petal.style.setProperty('--drift-duration', 3000 + Math.random() * 4000 + 'ms');
+    petal.style.setProperty('--rotate-duration', 8000 + Math.random() * 6000 + 'ms');
+    petal.style.setProperty('--fall-delay', Math.random() * 15000 + 'ms');
+    petal.style.setProperty('--drift-delay', Math.random() * 15000 + 'ms');
+    petal.style.setProperty('--rotate-delay', Math.random() * 15000 + 'ms');
+    document.body.appendChild(petal);
+  }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,192 @@
+<!-- fishswim.html -->
+
+<!--made by @ryfank -->
+
+
+<!-- watch some fish swim by in a deep blue ocean -->
+
+<!DOCTYPE html>
+<head>
+  
+  
+  <title> Ascii Ocean </title>
+  <style>
+    /* deep ocean gradient background */
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(to bottom, #001e3c 0%, #004080 70%, #007acc 100%);
+      overflow: hidden;
+      font-family: monospace, monospace;
+      color: #b0e0ff;
+      user-select: none;
+      position: relative;
+    }
+    /* little animated waves background (failed) */
+    body::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background:
+        radial-gradient(circle 15px at 50% 10%, rgba(255 255 255 / 0.1), transparent 70%),
+        radial-gradient(circle 20px at 20% 80%, rgba(255 255 255 / 0.08), transparent 70%);
+      background-repeat: repeat-x;
+      background-size: 200px 200px;
+      animation: waves 15s linear infinite;
+      pointer-events: none;
+      z-index: 0;
+    }
+    @keyframes waves {
+      0% {background-position: 0 0, 0 0;}
+      100% {background-position: 200px 0, 200px 0;}
+    }
+    /* Container for fish */
+    .fish-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      z-index: 1;
+    }
+    /* ASCII fish styling */
+    .fish {
+      position: absolute;
+      font-size: 2rem;
+      white-space: nowrap;
+      will-change: transform;
+      filter: drop-shadow(0 0 2px #0008);
+      user-select: none;
+    }
+    /* Bubbles floating up container */
+    .bubble-container {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 0;
+      overflow: visible;
+    }
+    /* Bubble styling */
+    .bubble {
+      position: absolute;
+      bottom: 0;
+      width: 8px;
+      height: 8px;
+      background: rgba(255, 255, 255, 0.4);
+      border-radius: 50%;
+      animation-timing-function: linear;
+      opacity: 0.7;
+      filter: drop-shadow(0 0 1px #aee);
+    }
+  </style>
+</head>
+<body>
+
+<div class="fish-container" aria-label="ASCII fish swimming in ocean" role="img"></div>
+<div class="bubble-container"></div>
+
+<script>
+  const fishContainer = document.querySelector('.fish-container');
+  const bubbleContainer = document.querySelector('.bubble-container');
+
+  // Different ASCII fish to randomly choose from
+  const fishShapes = [
+    "><(((º>",
+    "><((^>",
+    "><((('>",
+  ];
+
+  // Generate a random number between min and max 
+  function randomBetween(min, max) {
+    return Math.random() * (max - min) + min;
+  }
+
+  // Create fish elements with random start vertical position and speed
+  function createFish() {
+    const fish = document.createElement('div');
+    fish.classList.add('fish');
+    fish.textContent = fishShapes[Math.floor(Math.random() * fishShapes.length)];
+    // Random vertical position within viewport height with some padding
+    fish.style.top = `${randomBetween(5, 90)}vh`;
+    // Start slightly off left side
+    fish.style.left = `-10ch`;
+    // Random speed between 10 and 20 seconds to cross screen
+    fish.dataset.speed = randomBetween(10, 20);
+    fishContainer.appendChild(fish);
+    return fish;
+  }
+
+  // Animate the fish horizontally from left to right repeatedly
+  function animateFish(fish) {
+    const speed = parseFloat(fish.dataset.speed);
+    let startTime = null;
+    const distance = window.innerWidth + 200; // travel
+
+    function step(timestamp) {
+      if (!startTime) startTime = timestamp;
+      const elapsed = (timestamp - startTime) / 1000; // seconds
+      let progress = elapsed / speed; // 0 to 1
+      if (progress > 1) {
+        // Reset animation for loop
+        startTime = timestamp;
+        // Reset vertical position randomly for variety
+        fish.style.top = `${randomBetween(5, 90)}vh`;
+        progress = 0;
+      }
+      const x = distance * progress - 200;
+      fish.style.transform = `translateX(${x}px)`;
+      requestAnimationFrame(step);
+    }
+    requestAnimationFrame(step);
+  }
+
+  // Create a bunch of fish and animate them
+  for (let i = 0; i < 6; i++) {
+    const fish = createFish();
+    // Delay start times a bit
+    setTimeout(() => animateFish(fish), i * 3000);
+  }
+
+  // Create random bubbles floating up with varying speed and size
+  function createBubble() {
+    const bubble = document.createElement('div');
+    bubble.classList.add('bubble');
+    bubble.style.left = `${randomBetween(0, 100)}vw`;
+    const size = randomBetween(4, 12);
+    bubble.style.width = `${size}px`;
+    bubble.style.height = `${size}px`;
+    bubble.style.opacity = Math.random() * 0.5 + 0.3;
+    const speed = randomBetween(5, 12);
+    bubble.style.animation = `bubbleUp ${speed}s linear forwards`;
+    bubbleContainer.appendChild(bubble);
+
+    // Remove bubble after animation finishes
+    setTimeout(() => bubble.remove(), speed * 1000);
+  }
+
+  // Continuously create bubbles at random 
+  setInterval(() => {
+    createBubble();
+  }, 800);
+
+  // bubble keyframes (css)
+  const styleSheet = document.createElement("style");
+  styleSheet.innerHTML = `
+    @keyframes bubbleUp {
+      0% {
+        transform: translateY(0);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(-120vh);
+        opacity: 0;
+      }
+    }
+  `;
+  document.head.appendChild(styleSheet);
+</script>
+
+</body>
+</html>

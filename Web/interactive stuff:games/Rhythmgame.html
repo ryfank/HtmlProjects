@@ -1,0 +1,389 @@
+
+<!-- rhythmngame.html -->
+
+
+<!-- rhythmn game made by scratch by @ryfank -->
+
+<!-- play a very short mini rhythmn game inspired by arcaea,
+ although there is no music it does have sounds-->
+
+<!DOCTYPE html>
+
+<head>
+<title>Cute Rhythm Mini Game</title>
+<style>
+  body {
+    margin: 0;
+    background: #fdf6f0;
+    font-family: 'Comic Sans MS', cursive, sans-serif;
+    overflow: hidden;
+    user-select: none;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    height: 100vh;
+  }
+  h1 {
+    margin: 20px 0 0;
+    color: #ff6f91;
+  }
+
+  h2 {
+    margin: 20px 0 0;
+    color: #ff6f91;
+  }
+
+  #game {
+    position: relative;
+    width: 320px;
+    height: 480px;
+    background: #fff0f6;
+    border-radius: 20px;
+    box-shadow: 0 0 20px #ffb6c1;
+    overflow: hidden;
+  }
+  .lane {
+    position: absolute;
+    bottom: 0;
+    width: 25%;
+    height: 100%;
+    border-left: 1px solid #ffc9d1;
+    border-right: 1px solid #ffc9d1;
+    box-sizing: border-box;
+  }
+  .lane:nth-child(1) { left: 0; }
+  .lane:nth-child(2) { left: 25%; }
+  .lane:nth-child(3) { left: 50%; }
+  .lane:nth-child(4) { left: 75%; }
+
+  .target-zone {
+    position: absolute;
+    bottom: 20px;
+    width: 80%;
+    left: 10%;
+    height: 10px;
+    border-radius: 5px;
+    background: #ffbad2;
+    box-shadow: 0 0 8px #ffbad2;
+  }
+
+  .note {
+    position: absolute;
+    width: 60%;
+    left: 20%;
+    height: 30px;
+    border-radius: 15px;
+    background: #ffd6e8;
+    box-shadow: 0 0 12px #ffb6c1;
+  }
+
+  .lane1 .note { background: #ff9aa2; box-shadow: 0 0 12px #ff6f91; }
+  .lane2 .note { background: #ffb7b2; box-shadow: 0 0 12px #ff9671; }
+  .lane3 .note { background: #ffdac1; box-shadow: 0 0 12px #ffb347; }
+  .lane4 .note { background: #e2f0cb; box-shadow: 0 0 12px #a9d18e; }
+
+  #scoreboard {
+    margin-top: 15px;
+    font-size: 18px;
+    color: #ff6f91;
+    user-select: none;
+  }
+
+  #combo {
+    margin-top: 5px;
+    font-size: 16px;
+    color: #ff97ac;
+  }
+
+  #feedback {
+    margin-top: 10px;
+    font-size: 22px;
+    font-weight: bold;
+    height: 30px;
+    color: #ff6f91;
+    user-select: none;
+  }
+
+  #startBtn {
+    margin: 15px;
+    padding: 10px 20px;
+    font-size: 18px;
+    background: #ff8ca3;
+    border: none;
+    border-radius: 12px;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 0 10px #ff6f91;
+  }
+  #startBtn:hover {
+    background: #ff5a73;
+  }
+</style>
+</head>
+<body>
+
+
+<h1>Cute Rhythm Mini Game</h1>
+
+<h2>
+  lane 1 - D
+  lane 2 - F
+  lane 3 - J
+  lane 4 - K
+  </h2>
+
+<div id="game">
+  <div class="lane lane1"><div class="target-zone"></div></div>
+  <div class="lane lane2"><div class="target-zone"></div></div>
+  <div class="lane lane3"><div class="target-zone"></div></div>
+  <div class="lane lane4"><div class="target-zone"></div></div>
+</div>
+
+<div id="scoreboard">Score: 0</div>
+<div id="combo"></div>
+<div id="feedback"></div>
+<button id="startBtn">Start Game</button>
+
+<script>
+  const game = document.getElementById('game');
+  const lanes = [...document.querySelectorAll('.lane')];
+  const scoreboard = document.getElementById('scoreboard');
+  const comboDisplay = document.getElementById('combo');
+  const feedback = document.getElementById('feedback');
+  const startBtn = document.getElementById('startBtn');
+
+  const keys = ['d', 'f', 'j', 'k']; // keys for lanes 0-3
+  const laneCenters = lanes.map(lane => lane.getBoundingClientRect().left + lane.offsetWidth / 2);
+
+  let notes = [];
+  let score = 0;
+  let combo = 0;
+  let gameRunning = false;
+
+  // Note falling speed 
+  const speed = 0.3;
+  const noteHeight = 30;
+  const targetTop = game.clientHeight - 20 - noteHeight; // y position of target zone
+
+  // Hit windows (ms)
+  const perfectWindow = 100;
+  const goodWindow = 200;
+
+  // Beat pattern: array of notes with time (ms) and lane (0-3)
+  const beatMap = [
+    { time: 1000, lane: 0 },
+    { time: 1500, lane: 1 },
+    { time: 2000, lane: 2 },
+    { time: 2500, lane: 3 },
+    { time: 3000, lane: 0 },
+    { time: 3500, lane: 1 },
+    { time: 4000, lane: 2 },
+    { time: 4500, lane: 3 },
+    { time: 5500, lane: 1 },
+    { time: 6000, lane: 0 },
+    { time: 6500, lane: 3 },
+    { time: 7000, lane: 2 },
+    { time: 8000, lane: 1 },
+    { time: 8500, lane: 0 },
+    { time: 9000, lane: 3 },
+    { time: 10000, lane: 2 }
+  ];
+
+  let startTime = 0;
+  let noteIndex = 0;
+
+  function startGame() {
+    score = 0;
+    combo = 0;
+    notes.forEach(n => n.el.remove());
+    notes = [];
+    noteIndex = 0;
+    startTime = performance.now();
+    gameRunning = true;
+    startBtn.disabled = true;
+    scoreboard.innerText = 'Score: 0';
+    comboDisplay.innerText = '';
+    feedback.innerText = '';
+    requestAnimationFrame(gameLoop);
+  }
+
+  function spawnNoteAt(laneIndex) {
+    const lane = lanes[laneIndex];
+    const note = document.createElement('div');
+    note.classList.add('note');
+    lane.appendChild(note);
+    note.style.top = -noteHeight + 'px';
+    notes.push({ el: note, lane: laneIndex, time: 0, hit: false, y: -noteHeight });
+  }
+
+  function updateNotes(delta) {
+    for (let i = notes.length - 1; i >= 0; i--) {
+      const note = notes[i];
+      note.y += speed * delta;
+      note.el.style.top = note.y + 'px';
+
+      // Remove if out of bounds and not hit
+      if (note.y > game.clientHeight && !note.hit) {
+        note.el.remove();
+        notes.splice(i, 1);
+        combo = 0;
+        updateCombo();
+        showFeedback('Miss');
+      } else if (note.hit) {
+        // remove note after hit animation duration
+        note.el.style.opacity = 0;
+        setTimeout(() => {
+          note.el.remove();
+        }, 300);
+        notes.splice(i, 1);
+      }
+    }
+  }
+
+  function updateScore(points) {
+    score += points;
+    scoreboard.innerText = `Score: ${score}`;
+  }
+
+  function updateCombo() {
+    if (combo > 1) {
+      comboDisplay.innerText = `Combo x${combo}`;
+    } else {
+      comboDisplay.innerText = '';
+    }
+  }
+
+  function showFeedback(text) {
+    feedback.innerText = text;
+    setTimeout(() => {
+      if (feedback.innerText === text) feedback.innerText = '';
+    }, 600);
+  }
+
+  // Game loop
+  let lastTime = performance.now();
+  function gameLoop(currentTime) {
+    if (!gameRunning) return;
+
+    const elapsed = currentTime - startTime;
+
+    // Spawn notes when their time comes
+    while (noteIndex < beatMap.length && beatMap[noteIndex].time <= elapsed + 2000) {
+      spawnNoteAt(beatMap[noteIndex].lane);
+      noteIndex++;
+    }
+
+    const delta = currentTime - lastTime;
+    lastTime = currentTime;
+
+    updateNotes(delta);
+
+    // End game when all notes are gone and all beatMap processed
+    if (noteIndex >= beatMap.length && notes.length === 0) {
+      endGame();
+      return;
+    }
+
+    requestAnimationFrame(gameLoop);
+  }
+
+  // Hit detection
+  window.addEventListener('keydown', e => {
+    if (!gameRunning) return;
+
+    const keyIndex = keys.indexOf(e.key.toLowerCase());
+    if (keyIndex === -1) return;
+
+    // Find nearest note in lane not yet hit
+    let nearestNote = null;
+    let nearestDistance = Infinity;
+
+    for (const note of notes) {
+      if (note.lane === keyIndex && !note.hit) {
+        // Calculate distance to target zone
+        const dist = Math.abs(note.y - targetTop);
+        if (dist < nearestDistance) {
+          nearestDistance = dist;
+          nearestNote = note;
+        }
+      }
+    }
+
+    if (!nearestNote) {
+      combo = 0;
+      updateCombo();
+      showFeedback('Miss');
+      playMissSound();
+      return;
+    }
+
+    if (nearestDistance <= perfectWindow) {
+      hitNote(nearestNote, 'Perfect', 30);
+    } else if (nearestDistance <= goodWindow) {
+      hitNote(nearestNote, 'Good', 15);
+    } else {
+      combo = 0;
+      updateCombo();
+      showFeedback('Miss');
+      playMissSound();
+      return;
+    }
+  });
+
+  function hitNote(note, rating, points) {
+    note.hit = true;
+    combo++;
+    updateCombo();
+    updateScore(points);
+    showFeedback(rating);
+    playHitSound();
+    flashLane(note.lane);
+  }
+
+  function flashLane(index) {
+    const lane = lanes[index];
+    lane.style.backgroundColor = '#ffbad2';
+    setTimeout(() => {
+      lane.style.backgroundColor = '';
+    }, 150);
+  }
+
+  function playHitSound() {
+    const ctx = new AudioContext();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'triangle';
+    o.frequency.setValueAtTime(700 + Math.random()*200, ctx.currentTime);
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.1);
+  }
+
+  function MissSound() {
+    const ctx = new AudioContext();
+    const o = ctx.createOscillator();
+    const g = ctx.createGain();
+    o.type = 'sine';
+    o.frequency.setValueAtTime(300, ctx.currentTime);
+    g.gain.setValueAtTime(0.15, ctx.currentTime);
+    o.connect(g);
+    g.connect(ctx.destination);
+    o.start();
+    o.stop(ctx.currentTime + 0.15);
+  }
+
+  function endGame() {
+    gameRunning = false;
+    startBtn.disabled = false;
+    showFeedback(`Game Over! Final Score: ${score}`);
+  }
+
+  startBtn.addEventListener('click', () => {
+    startGame();
+  });
+</script>
+
+</body>
+</html>

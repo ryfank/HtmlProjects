@@ -1,0 +1,106 @@
+<!-- Bubbles.html -->
+
+<!-- made by @ryfank -->
+
+<!DOCTYPE html>
+
+<head>
+<title> Bubble time :3</title>
+<style>
+  body, html {
+    margin: 0; padding: 0; overflow: hidden;
+    background: #111;
+    height: 100vh;
+    cursor: crosshair;
+  }
+  canvas {
+    display: block;
+  }
+</style>
+</head>
+<body>
+<canvas id="canvas"></canvas>
+
+<script>
+  const canvas = document.getElementById('canvas');
+  const ctx = canvas.getContext('2d');
+  let width, height;
+  let bubbles = [];
+
+  function resize() {
+    width = window.innerWidth;
+    height = window.innerHeight;
+    canvas.width = width;
+    canvas.height = height;
+  }
+
+  window.addEventListener('resize', resize);
+  resize();
+
+  class Bubble {
+    constructor(x, y, radius, color, vx, vy) {
+      this.x = x;
+      this.y = y;
+      this.radius = radius;
+      this.color = color;
+      this.vx = vx;
+      this.vy = vy;
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.shadowColor = this.color;
+      ctx.shadowBlur = 15;
+      ctx.fillStyle = this.color;
+      ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+      ctx.fill();
+      ctx.closePath();
+    }
+    update() {
+      this.x += this.vx;
+      this.y += this.vy;
+
+      if (this.x + this.radius > width || this.x - this.radius < 0) this.vx *= -1;
+      if (this.y + this.radius > height || this.y - this.radius < 0) this.vy *= -1;
+
+      this.draw();
+    }
+  }
+
+  function randomColor() {
+    const colors = ['#FF6B6B', '#FFD93D', '#6BCB77', '#4D96FF', '#9D4EDD'];
+    return colors[Math.floor(Math.random() * colors.length)];
+  }
+
+  function createBubbles(count) {
+    for (let i = 0; i < count; i++) {
+      const radius = Math.random() * 20 + 10;
+      const x = Math.random() * (width - radius * 2) + radius;
+      const y = Math.random() * (height - radius * 2) + radius;
+      const color = randomColor();
+      const vx = (Math.random() - 0.5) * 3;
+      const vy = (Math.random() - 0.5) * 3;
+      bubbles.push(new Bubble(x, y, radius, color, vx, vy));
+    }
+  }
+
+  createBubbles(30);
+
+  canvas.addEventListener('mousemove', e => {
+    const radius = Math.random() * 20 + 10;
+    const color = randomColor();
+    const vx = (Math.random() - 0.5) * 5;
+    const vy = (Math.random() - 0.5) * 5;
+    bubbles.push(new Bubble(e.clientX, e.clientY, radius, color, vx, vy));
+    if (bubbles.length > 100) bubbles.shift();
+  });
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    bubbles.forEach(b => b.update());
+    requestAnimationFrame(animate);
+  }
+
+  animate();
+</script>
+</body>
+</html>

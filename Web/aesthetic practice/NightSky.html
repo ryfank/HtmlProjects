@@ -1,0 +1,140 @@
+<!-- nightsky.html -->
+
+
+<!DOCTYPE html>
+
+<head>
+
+  <!-- starting with creating the shapes -->
+
+  <title>Celestial Sky</title>
+  <style>
+    /* Soft pastel gradient background with purple pink and blue */
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(135deg, #c9d6ff 0%, #e2a1f7 45%, #7f7fd5 100%);
+      overflow: hidden;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      position: relative;
+      user-select: none;
+    }
+
+    /* Big swirly fluffy clouds  */
+    .cloud {
+      position: absolute;
+      background: #ffffffcc;
+      filter: blur(10px);
+      border-radius: 50% / 100%;
+      opacity: 0.7;
+      animation: drift 40s linear infinite;
+    }
+    .cloud1 {
+      width: 250px;
+      height: 140px;
+      top: 25vh;
+      left: -300px;
+      box-shadow:
+        50px 20px 0 0 #fff,
+        100px 40px 0 0 #f3eaff,
+        150px 20px 0 0 #fff;
+      animation-delay: 0s;
+    }
+    .cloud2 {
+      width: 180px;
+      height: 100px;
+      top: 45vh;
+      left: -200px;
+      box-shadow:
+        40px 15px 0 0 #f7e9ff,
+        80px 30px 0 0 #fff,
+        120px 15px 0 0 #e6d7ff;
+      animation-delay: 20s;
+    }
+    .cloud3 {
+      width: 300px;
+      height: 150px;
+      top: 60vh;
+      left: -350px;
+      box-shadow:
+        60px 25px 0 0 #e3d3ff,
+        120px 45px 0 0 #f8eaff,
+        180px 25px 0 0 #f9e9ff;
+      animation-delay: 10s;
+    }
+
+    @keyframes drift {
+      0% {transform: translateX(0);}
+      100% {transform: translateX(140vw);}
+    }
+
+    /* Stars */
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      filter: drop-shadow(0 0 4px rgba(255 255 255 / 0.7));
+      animation: twinkle 4s ease-in-out infinite;
+      opacity: 0.8;
+    }
+    @keyframes twinkle {
+      0%, 100% {opacity: 0.7;}
+      50% {opacity: 1;}
+    }
+
+    /* Pastel crescent moon */
+    .moon {
+      position: absolute;
+      top: 15vh;
+      right: 15vw;
+      width: 120px;
+      height: 120px;
+      background: radial-gradient(circle at 40% 50%, #fce1ff 55%, transparent 80%);
+      border-radius: 50%;
+      box-shadow:
+        inset 15px 5px 15px #e3bfff,
+        0 0 30px 10px #f6d0ff;
+      filter: drop-shadow(0 0 15px #f9b8ff);
+    }
+    /* Overlapping circle to create crescent shape to give a realistic moon look */
+    .moon::before {
+      content: '';
+      position: absolute;
+      width: 90px;
+      height: 120px;
+      background: #c9a9ff;
+      border-radius: 50%;
+      top: 0;
+      left: 40px;
+      filter: blur(2px);
+      opacity: 0.7;
+    }
+  </style>
+</head>
+
+<!--putting everything together now -->
+
+<body>
+
+  <div class="moon"></div>
+  <div class="cloud cloud1"></div>
+  <div class="cloud cloud2"></div>
+  <div class="cloud cloud3"></div>
+
+  <script>
+    const starCount = 120;
+    for(let i=0; i < starCount; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      const size = Math.random() * 2 + 1;
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.top = `${Math.random() * 100}vh`;
+      star.style.left = `${Math.random() * 100}vw`;
+      star.style.animationDuration = `${3 + Math.random() * 3}s`;
+      star.style.animationDelay = `${Math.random() * 5}s`;
+      document.body.appendChild(star);
+    }
+  </script>
+</body>
+</html>

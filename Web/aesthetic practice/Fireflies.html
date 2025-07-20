@@ -1,0 +1,158 @@
+<!-- fireflies.html -->
+
+<!-- made by @ryfank -->
+
+<!-- enjoy a peaceful scenery with fireflies and the moon  -->
+
+<!DOCTYPE html>
+
+
+<head>
+  <title> Cozy Night </title>
+  <style>
+    body {
+      margin: 0;
+      height: 100vh;
+      background: linear-gradient(to top, #0a0c26 0%, #1a2060 80%, #171c40 100%);
+      overflow: hidden;
+      position: relative;
+      font-family: 'Comic Sans MS', cursive, sans-serif;
+      user-select: none;
+    }
+
+/*  glowing moon mechanics  */
+    .moon {
+      position: absolute;
+      top: 10vh;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 180px;
+      height: 180px;
+      background: radial-gradient(circle at center, #f7d9ff 60%, #b38aff 90%);
+      border-radius: 50%;
+      filter: drop-shadow(0 0 30px #d4b8ff);
+      z-index: 0;
+      box-shadow: inset 30px 10px 40px #e4ccff;
+    }
+    .moon::before {
+      content: '';
+      position: absolute;
+      width: 130px;
+      height: 180px;
+      background: #a183d9cc;
+      border-radius: 50%;
+      top: 0;
+      left: 70px;
+      filter: blur(10px);
+      opacity: 0.6;
+      z-index: 0;
+    }
+
+    /* Stars */
+    .stars {
+      position: absolute;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+    }
+    .star {
+      position: absolute;
+      background: white;
+      border-radius: 50%;
+      opacity: 0.8;
+      filter: drop-shadow(0 0 3px rgba(255 255 255 / 0.7));
+      animation: twinkle 3s ease-in-out infinite alternate;
+    }
+    @keyframes twinkle {
+      0%, 100% {opacity: 0.6;}
+      50% {opacity: 1;}
+    }
+
+   
+    @keyframes sway {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(3deg); }
+    }
+
+    /* Fireflies */
+    .firefly {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: radial-gradient(circle, #fff9a8, #fff056 40%, transparent 70%);
+      border-radius: 50%;
+      filter: drop-shadow(0 0 8px #fff97f);
+      opacity: 0.7;
+      animation: flicker 3s infinite ease-in-out;
+      will-change: transform;
+      z-index: 5;
+    }
+    @keyframes flicker {
+      0%, 100% {opacity: 0.7;}
+      50% {opacity: 0.2;}
+    }
+  </style>
+
+
+
+</head>
+<body>
+
+  <div class="moon"></div>
+  <div class="stars" aria-hidden="true"></div>
+
+  <!--  not working :( still learning how to embed music into my work-->
+
+  <iframe width="0" height="0" src="https://www.youtube.com/embed/g1w3IT5WnYw?si=QvoZSIlinLE0K8GQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" referrerpolicy="strict-origin-when-cross-origin" allowfullscreen></iframe>
+
+
+  <script>
+    // Star script
+    const starsContainer = document.querySelector('.stars');
+    for(let i=0; i<130; i++) {
+      const star = document.createElement('div');
+      star.className = 'star';
+      const size = Math.random() * 2 + 1;
+      star.style.width = `${size}px`;
+      star.style.height = `${size}px`;
+      star.style.top = `${Math.random() * 100}vh`;
+      star.style.left = `${Math.random() * 100}vw`;
+      star.style.animationDuration = `${2 + Math.random() * 2}s`;
+      star.style.animationDelay = `${Math.random() * 4}s`;
+      starsContainer.appendChild(star);
+    }
+
+    // Fireflies floating made them flicker a bit
+    const fireflyCount = 35;
+    for(let i=0; i < fireflyCount; i++) {
+      const firefly = document.createElement('div');
+      firefly.className = 'firefly';
+      firefly.style.top = `${Math.random() * 65 + 15}vh`;
+      firefly.style.left = `${Math.random() * 100}vw`;
+      firefly.style.animationDuration = `${2 + Math.random() * 3}s`;
+      firefly.style.opacity = 0.5 + Math.random() * 0.5;
+
+      // Animate soft floating
+      (function floatAnim() {
+        const xMove = (Math.random() - 0.5) * 40;
+        const yMove = (Math.random() - 0.5) * 40;
+        const duration = 4000 + Math.random() * 3000;
+        firefly.animate([
+          { transform: 'translate(0, 0)' },
+          { transform: `translate(${xMove}px, ${yMove}px)` },
+          { transform: 'translate(0, 0)' }
+        ], {
+          duration,
+          iterations: Infinity,
+          easing: 'ease-in-out'
+        });
+        setTimeout(floatAnim, duration);
+      })();
+
+      document.body.appendChild(firefly);
+    }
+  </script>
+
+</body>
+</html>

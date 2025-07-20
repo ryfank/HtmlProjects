@@ -1,0 +1,42 @@
+<!-- tomogotchi.html-->
+
+<!-- made by @ryfank -->
+
+<!-- click to pet the cat and the cat will thank you with 
+ different faces -->
+
+<!DOCTYPE html>
+
+<head>
+
+<title>ASCII Virtual Pet</title>
+<style>
+  body { background: #fff8f0; display: flex; align-items: center; justify-content: center; height: 100vh; font-family: monospace; color: #ff69b4; }
+  #pet { font-size: 48px; cursor: pointer; transition: transform 0.2s; white-space: pre; text-align: center; }
+  #message { font-size: 18px; margin-top: 20px; text-align: center; }
+</style>
+</head>
+<body>
+<div>
+  <div id="pet">(= ^o v o^=)</div>
+  <div id="message">Click me to pet!</div>
+</div>
+
+<script>
+  const pet = document.getElementById('pet');
+  const message = document.getElementById('message');
+  let moods = ['(=^. u .^=)', '(=^-v-^=)'];
+
+  pet.addEventListener('click', () => {
+    pet.innerText = moods[Math.floor(Math.random() * moods.length)];
+    pet.style.transform = "scale(1.1)";
+    message.innerText = "Purr~ Thank you!";
+    setTimeout(() => {
+      pet.innerText = '(=^. u .^=)';
+      pet.style.transform = "scale(1)";
+      message.innerText = "Click me to pet!";
+    }, 800);
+  });
+</script>
+</body>
+</html>

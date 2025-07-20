@@ -1,0 +1,98 @@
+<!-- bunnyfollows.html-->
+
+<!-- made by @ryfank-->
+
+<!-- have a little bunny follow your cursor and leaves paw prints 
+ across screen -->
+
+<!DOCTYPE html>
+
+<head>
+
+<title>ASCII Bunny Trail</title>
+<style>
+  body { 
+    background: #fffaf0; 
+    margin: 0; 
+    overflow: hidden; 
+    font-family: monospace; 
+    cursor: none; /* Hide default cursor */
+  }
+  .bunny, .footprint { 
+    position: absolute; 
+    font-size: 14px; 
+    white-space: pre; 
+    line-height: 1; 
+    user-select: none; 
+    transition: opacity 1s ease;
+  }
+</style>
+</head>
+<body>
+
+<pre class="bunny" id="bunny">
+(\_/) 
+(o wo) 
+(")_(")
+
+</pre>
+
+<!-- Cute Sounds does not work hoping to fix one day -->
+<audio id="step-sound" src="https://cdn.pixabay.com/download/audio/2022/03/22/audio_c4c655f2e6.mp3?filename=soft-footstep-21006.mp3" preload="auto"></audio>
+<audio id="squeak-sound" src="https://cdn.pixabay.com/download/audio/2022/04/07/audio_4c03b18870.mp3?filename=cute-squeak-113124.mp3" preload="auto"></audio>
+
+<script>
+  const bunny = document.getElementById('bunny');
+  const stepSound = document.getElementById('step-sound');
+  const squeakSound = document.getElementById('squeak-sound');
+
+  let normal = `(\_/)\n(o wo)\n/(")_(")>`;
+  let wiggle = `(\_/)\n(T ^ T )\n<\\(")_(")`;
+
+  let lastFootprintTime = 0;
+  const footprintCooldown = 150; // milliseconds between prints
+
+
+  //paw prints 
+  function createFootprint(x, y) {
+    const fp = document.createElement('div');
+    fp.className = 'footprint';
+    fp.style.left = x + 'px';
+    fp.style.top = y + 'px';
+    fp.textContent = 'o';
+    fp.style.opacity = 0.8;
+
+    document.body.appendChild(fp);
+
+    setTimeout(() => {
+      fp.style.opacity = 0;
+      setTimeout(() => fp.remove(), 1000);
+    }, 800);
+  }
+
+  window.addEventListener('mousemove', e => {
+    bunny.style.left = e.clientX + 'px';
+    bunny.style.top = e.clientY + 'px';
+
+    const now = Date.now();
+    if (now - lastFootprintTime > footprintCooldown) {
+      createFootprint(e.clientX - 5, e.clientY + 20);
+      stepSound.currentTime = 0;
+      stepSound.play();
+      lastFootprintTime = now;
+    }
+  });
+
+  bunny.addEventListener('click', () => {
+    bunny.textContent = wiggle;
+    squeakSound.currentTime = 0;
+    squeakSound.play();
+
+    setTimeout(() => {
+      bunny.textContent = normal;
+    }, 500);
+  });
+</script>
+
+</body>
+</html>
